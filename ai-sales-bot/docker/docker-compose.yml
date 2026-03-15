@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: aisales-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aisales
+      POSTGRES_PASSWORD: aisales123
+      POSTGRES_DB: ai_sales_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aisales -d ai_sales_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: aisales-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: ../.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://aisales:aisales123@db:5432/ai_sales_db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../data:/app/data
+
+volumes:
+  pgdata:

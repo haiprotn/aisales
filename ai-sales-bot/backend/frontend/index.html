@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Sales Bot - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0e14;--surface:#13161f;--surface2:#1a1e2b;--border:#252a3a;--text:#e4e7f0;--text2:#8b90a0;--accent:#6c5ce7;--accent2:#a29bfe;--green:#00cec9;--red:#ff6b6b;--orange:#fdcb6e;--blue:#74b9ff;--radius:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);padding:24px 0;position:fixed;height:100vh;overflow-y:auto;z-index:10}
+.sidebar-logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.sidebar-logo h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sidebar-logo span{font-size:11px;color:var(--text2);display:block;margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--text2);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;border-left:3px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{color:var(--accent2);background:rgba(108,92,231,.08);border-left-color:var(--accent)}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.nav-section{padding:16px 20px 6px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text2)}
+.main{flex:1;margin-left:240px;padding:28px 32px}
+.page-title{font-size:22px;font-weight:700;margin-bottom:24px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:border-color .3s}
+.stat-card:hover{border-color:var(--accent)}
+.stat-label{font-size:12px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.stat-value{font-size:28px;font-weight:700}
+.stat-value.accent{color:var(--accent2)}.stat-value.green{color:var(--green)}.stat-value.orange{color:var(--orange)}.stat-value.blue{color:var(--blue)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:600}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);border-bottom:1px solid var(--border)}
+td{padding:12px;font-size:13px;border-bottom:1px solid var(--border)}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-published{background:rgba(0,206,201,.15);color:var(--green)}
+.badge-scheduled{background:rgba(116,185,255,.15);color:var(--blue)}
+.badge-draft{background:rgba(139,144,160,.15);color:var(--text2)}
+.badge-failed{background:rgba(255,107,107,.15);color:var(--red)}
+.badge-pending{background:rgba(253,203,110,.15);color:var(--orange)}
+.badge-facebook{background:rgba(66,103,178,.2);color:#8b9dc3}
+.badge-shopee{background:rgba(238,77,45,.15);color:#f17a5d}
+.badge-tiktok{background:rgba(255,255,255,.1);color:#e0e0e0}
+.badge-website{background:rgba(108,92,231,.15);color:var(--accent2)}
+.btn{padding:8px 16px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#5a4bd1;transform:translateY(-1px)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent)}
+.btn-sm{padding:5px 10px;font-size:11px}.btn-danger{background:rgba(255,107,107,.15);color:var(--red)}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:500}
+.form-input,.form-select,.form-textarea{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;transition:border-color .2s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent)}
+.form-textarea{resize:vertical;min-height:80px}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:all .3s}
+.upload-zone:hover{border-color:var(--accent);background:rgba(108,92,231,.05)}
+.upload-zone p{color:var(--text2);font-size:13px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:90%;max-width:520px;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:20px}
+.content-preview{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0}
+.content-preview h4{font-size:14px;margin-bottom:8px;color:var(--accent2)}
+.content-preview p{font-size:13px;line-height:1.6;color:var(--text2)}
+.content-preview .hashtags span{display:inline-block;padding:2px 8px;background:rgba(108,92,231,.12);color:var(--accent2);border-radius:4px;font-size:11px;margin:2px 4px 2px 0}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;z-index:200;animation:slideIn .3s ease}
+.toast.success{border-color:var(--green)}.toast.error{border-color:var(--red)}
+@keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.checkbox-group{display:flex;gap:12px;flex-wrap:wrap}
+.checkbox-group label{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:8px;transition:all .2s}
+.checkbox-group label:has(input:checked){border-color:var(--accent);background:rgba(108,92,231,.1)}
+.checkbox-group input{accent-color:var(--accent)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px;color:var(--text2);font-size:13px}
+.activity-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.activity-dot.success{background:var(--green)}.activity-dot.error{background:var(--red)}
+.activity-time{color:var(--text2);font-size:11px;margin-top:2px}
+.hidden{display:none!important}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:16px}.stat-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="sidebar-logo"><h1>🤖 AI Sales Bot</h1><span>Hệ thống bán hàng tự động</span></div>
+<div class="nav-section">Tổng quan</div>
+<div class="nav-item active" data-page="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+<div class="nav-section">Quản lý</div>
+<div class="nav-item" data-page="products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Sản phẩm</div>
+<div class="nav-item" data-page="content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>AI Content</div>
+<div class="nav-item" data-page="posts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Đăng bài</div>
+<div class="nav-item" data-page="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Lập lịch</div>
+<div class="nav-item" data-page="comments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Bình luận</div>
+</aside>
+<main class="main">
+<div id="page-dashboard">
+<div class="page-title">📊 Dashboard</div>
+<div class="stat-grid">
+<div class="stat-card"><div class="stat-label">Sản phẩm</div><div class="stat-value accent" id="stat-products">0</div></div>
+<div class="stat-card"><div class="stat-label">Bài đã đăng</div><div class="stat-value green" id="stat-published">0</div></div>
+<div class="stat-card"><div class="stat-label">Đang chờ đăng</div><div class="stat-value orange" id="stat-scheduled">0</div></div>
+<div class="stat-card"><div class="stat-label">Bình luận chờ</div><div class="stat-value blue" id="stat-comments">0</div></div>
+</div>
+<div class="card"><div class="card-header"><div class="card-title">Hoạt động gần đây</div></div><div id="activity-feed"><div class="loading-overlay"><div class="spinner"></div> Đang tải...</div></div></div>
+</div>
+<div id="page-products" class="hidden">
+<div class="page-title">📦 Quản lý sản phẩm</div>
+<div style="display:flex;gap:10px;margin-bottom:20px"><button class="btn btn-primary" onclick="showModal('add-product')">+ Thêm sản phẩm</button><button class="btn btn-secondary" onclick="showModal('import-product')">📥 Nhập từ Excel/CSV</button></div>
+<div class="card"><div class="card-header"><div class="card-title">Danh sách sản phẩm</div><input class="form-input" style="width:240px" placeholder="🔍 Tìm sản phẩm..." oninput="searchProducts(this.value)"></div>
+<table><thead><tr><th>ID</th><th>Tên sản phẩm</th><th>Giá</th><th>Danh mục</th><th>Nguồn</th><th>Thao tác</th></tr></thead><tbody id="products-table"><tr><td colspan="6" class="loading-overlay"><div class="spinner"></div></td></tr></tbody></table></div>
+</div>
+<div id="page-content" class="hidden">
+<div class="page-title">✍️ AI Tạo Nội Dung</div>
+<div class="card">
+<div class="card-title" style="margin-bottom:16px">Tạo nội dung bán hàng bằng AI</div>
+<div class="form-group"><label class="form-label">Chọn sản phẩm</label><select class="form-select" id="content-product-select"><option value="">-- Chọn sản phẩm --</option></select></div>
+<div class="form-group"><label class="form-label">Nền tảng</label><div class="checkbox-group"><label><input type="checkbox" value="facebook" checked> Facebook</label><label><input type="checkbox" value="shopee" checked> Shopee</label><label><input type="checkbox" value="tiktok" checked> TikTok</label><label><input type="checkbox" value="website"> Website</label></div></div>
+<div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label class="form-label">Tone</label><select class="form-select" id="content-tone"><option value="friendly">Thân thiện</option><option value="professional">Chuyên nghiệp</option><option value="urgent">Gấp / FOMO</option><option value="luxury">Sang trọng</option></select></div><div class="form-group" style="flex:1"><label class="form-label">Ngôn ngữ</label><select class="form-select" id="content-lang"><option value="vi">Tiếng Việt</option><option value="en">English</option></select></div></div>
+<button class="btn btn-primary" onclick="generateContent()" id="btn-generate">🤖 AI Tạo Nội Dung</button>
+</div><div id="content-results"></div>
+</div>
+<div id="page-posts" class="hidden">
+<div class="page-title">📤 Quản lý bài đăng</div>
+<div class="card"><div class="card-header"><div class="card-title">Bài đăng</div><select class="form-select" style="width:140px" onchange="filterPosts(this.value)"><option value="">Tất cả</option><option value="facebook">Facebook</option><option value="shopee">Shopee</option><option value="tiktok">TikTok</option><option value="website">Website</option></select></div>
+<table><thead><tr><th>ID</th><th>Nền tảng</th><th>Trạng thái</th><th>Thời gian</th><th>URL</th></tr></thead><tbody id="posts-table"><tr><td colspan="5" class="loading-overlay"><div class="spinner"></div></td></tr></tbody></table></div>
+</div>
+<div id="page-schedule" class="hidden">
+<div class="page-title">⏰ Lập Lịch Đăng Bài</div>
+<div class="card">
+<div class="card-title" style="margin-bottom:16px">Tạo lịch mới</div>
+<div class="form-group"><label class="form-label">Tên lịch</label><input class="form-input" id="sched-name" placeholder="VD: Lịch đăng hàng ngày"></div>
+<div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label class="form-label">Số bài/ngày</label><input class="form-input" type="number" id="sched-count" value="10" min="1" max="50"></div><div class="form-group" style="flex:1"><label class="form-label">Giờ bắt đầu</label><input class="form-input" type="number" id="sched-start" value="8" min="0" max="23"></div><div class="form-group" style="flex:1"><label class="form-label">Giờ kết thúc</label><input class="form-input" type="number" id="sched-end" value="22" min="0" max="23"></div></div>
+<div class="form-group"><label class="form-label">Nền tảng</label><div class="checkbox-group" id="sched-platforms"><label><input type="checkbox" value="facebook" checked> Facebook</label><label><input type="checkbox" value="shopee" checked> Shopee</label><label><input type="checkbox" value="tiktok"> TikTok</label><label><input type="checkbox" value="website"> Website</label></div></div>
+<div style="display:flex;gap:10px"><button class="btn btn-primary" onclick="createSchedule()">💾 Tạo lịch</button><button class="btn btn-secondary" onclick="previewTimes()">👁 Xem giờ đăng</button></div>
+<div id="preview-times" style="margin-top:12px"></div>
+</div>
+<div class="card" style="margin-top:20px"><div class="card-title" style="margin-bottom:16px">Lịch đã tạo</div><div id="schedules-list"><div class="loading-overlay"><div class="spinner"></div></div></div></div>
+</div>
+<div id="page-comments" class="hidden">
+<div class="page-title">💬 Bình Luận & Trả Lời AI</div>
+<div style="margin-bottom:16px"><button class="btn btn-primary" onclick="autoReplyAll()">🤖 AI Trả lời tất cả</button></div>
+<div class="card"><table><thead><tr><th>Khách</th><th>Nội dung</th><th>AI Trả lời</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="comments-table"><tr><td colspan="5" class="loading-overlay"><div class="spinner"></div></td></tr></tbody></table></div>
+</div>
+</main>
+</div>
+<div class="modal-overlay hidden" id="modal-add-product" onclick="if(event.target===this)closeModals()">
+<div class="modal"><div class="modal-title">Thêm sản phẩm mới</div>
+<div class="form-group"><label class="form-label">Tên sản phẩm *</label><input class="form-input" id="prod-name" placeholder="VD: Áo thun nam cao cấp"></div>
+<div style="display:flex;gap:12px"><div class="form-group" style="flex:1"><label class="form-label">Giá (VNĐ)</label><input class="form-input" type="number" id="prod-price" placeholder="299000"></div><div class="form-group" style="flex:1"><label class="form-label">Danh mục</label><input class="form-input" id="prod-category" placeholder="Thời trang"></div></div>
+<div class="form-group"><label class="form-label">Mô tả</label><textarea class="form-textarea" id="prod-desc" placeholder="Mô tả chi tiết sản phẩm..."></textarea></div>
+<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px"><button class="btn btn-secondary" onclick="closeModals()">Hủy</button><button class="btn btn-primary" onclick="addProduct()">Thêm sản phẩm</button></div></div></div>
+<div class="modal-overlay hidden" id="modal-import-product" onclick="if(event.target===this)closeModals()">
+<div class="modal"><div class="modal-title">Nhập sản phẩm từ file</div>
+<div class="upload-zone" onclick="document.getElementById('file-input').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:40px;height:40px;color:var(--text2);margin-bottom:12px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><p>Kéo thả hoặc click để chọn file</p><p style="font-size:11px;margin-top:4px;color:var(--text2)">.xlsx, .csv, .tsv</p></div>
+<input type="file" id="file-input" accept=".xlsx,.xls,.csv,.tsv" style="display:none" onchange="importProducts(this)">
+<div id="import-result" style="margin-top:12px"></div></div></div>
+<div id="toast-container"></div>
+<script>
+const API='';
+document.querySelectorAll('.nav-item').forEach(i=>{i.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));i.classList.add('active');const p=i.dataset.page;document.querySelectorAll('[id^="page-"]').forEach(pg=>pg.classList.add('hidden'));document.getElementById('page-'+p).classList.remove('hidden');loadPage(p)})});
+function loadPage(p){({dashboard:loadDashboard,products:loadProducts,content:loadProductSelect,posts:loadPosts,schedule:loadSchedules,comments:loadComments})[p]?.()}
+async function loadDashboard(){try{const r=await fetch(API+'/api/dashboard');const d=await r.json();document.getElementById('stat-products').textContent=d.total_products;document.getElementById('stat-published').textContent=d.published_posts;document.getElementById('stat-scheduled').textContent=d.scheduled_posts;document.getElementById('stat-comments').textContent=d.pending_comments;const ar=await fetch(API+'/api/activity?limit=15');const acts=await ar.json();const f=document.getElementById('activity-feed');if(!acts.length){f.innerHTML='<p style="color:var(--text2);padding:20px;text-align:center">Chưa có hoạt động. Thêm sản phẩm để bắt đầu!</p>';return}f.innerHTML=acts.map(a=>`<div class="activity-item"><div class="activity-dot ${a.status}"></div><div><div>${fmtAct(a.action)}</div><div class="activity-time">${fmtTime(a.created_at)}</div></div></div>`).join('')}catch(e){}}
+function fmtAct(a){return{product_created:'📦 Thêm sản phẩm',products_imported:'📥 Nhập sản phẩm',content_generated:'✍️ AI tạo nội dung',post_published:'📤 Đăng bài',post_scheduled:'⏰ Lên lịch',comment_replied:'💬 Trả lời',content_generation_failed:'❌ Lỗi tạo nội dung'}[a]||a}
+function fmtTime(t){if(!t)return'';const d=new Date(t);return d.toLocaleDateString('vi')+' '+d.toLocaleTimeString('vi',{hour:'2-digit',minute:'2-digit'})}
+function fmtPrice(p){return p?Number(p).toLocaleString('vi')+'đ':'-'}
+let allProducts=[];
+async function loadProducts(){try{const r=await fetch(API+'/api/products/');allProducts=await r.json();renderProducts(allProducts)}catch(e){}}
+function renderProducts(ps){const tb=document.getElementById('products-table');if(!ps.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text2)">Chưa có sản phẩm</td></tr>';return}tb.innerHTML=ps.map(p=>`<tr><td>#${p.id}</td><td><strong>${esc(p.name)}</strong></td><td>${fmtPrice(p.price)}</td><td>${esc(p.category||'-')}</td><td><span class="badge badge-${p.source==='import'?'scheduled':'draft'}">${p.source}</span></td><td><button class="btn btn-sm btn-secondary" onclick="quickGen(${p.id})">🤖 AI</button> <button class="btn btn-sm btn-danger" onclick="delProduct(${p.id})">🗑</button></td></tr>`).join('')}
+function searchProducts(q){renderProducts(allProducts.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())))}
+async function addProduct(){const n=document.getElementById('prod-name').value.trim();if(!n){toast('Nhập tên sản phẩm','error');return}try{const r=await fetch(API+'/api/products/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,price:Number(document.getElementById('prod-price').value)||null,category:document.getElementById('prod-category').value.trim()||null,description:document.getElementById('prod-desc').value.trim()||null})});if(r.ok){toast('Đã thêm sản phẩm!','success');closeModals();loadProducts();['prod-name','prod-price','prod-category','prod-desc'].forEach(id=>document.getElementById(id).value='')}}catch(e){toast('Lỗi: '+e.message,'error')}}
+async function delProduct(id){if(!confirm('Xóa sản phẩm này?'))return;await fetch(API+'/api/products/'+id,{method:'DELETE'});toast('Đã xóa','success');loadProducts()}
+async function importProducts(input){const file=input.files[0];if(!file)return;const fd=new FormData();fd.append('file',file);const rd=document.getElementById('import-result');rd.innerHTML='<div class="loading-overlay"><div class="spinner"></div> Đang nhập...</div>';try{const r=await fetch(API+'/api/products/import',{method:'POST',body:fd});const d=await r.json();if(d.success){rd.innerHTML=`<div style="color:var(--green)">✅ Đã nhập ${d.imported} sản phẩm!</div>`;toast(`Nhập ${d.imported} sản phẩm`,'success');loadProducts()}else{rd.innerHTML=`<div style="color:var(--red)">❌ ${d.detail||'Lỗi'}</div>`}}catch(e){rd.innerHTML=`<div style="color:var(--red)">❌ ${e.message}</div>`}input.value=''}
+async function loadProductSelect(){try{const r=await fetch(API+'/api/products/');const ps=await r.json();document.getElementById('content-product-select').innerHTML='<option value="">-- Chọn sản phẩm --</option>'+ps.map(p=>`<option value="${p.id}">${p.name} - ${fmtPrice(p.price)}</option>`).join('')}catch(e){}}
+async function generateContent(){const pid=document.getElementById('content-product-select').value;if(!pid){toast('Chọn sản phẩm!','error');return}const pfs=[...document.querySelectorAll('#page-content .checkbox-group input:checked')].map(c=>c.value);if(!pfs.length){toast('Chọn nền tảng!','error');return}const btn=document.getElementById('btn-generate');btn.innerHTML='<div class="spinner"></div> Đang tạo...';btn.disabled=true;try{const r=await fetch(API+'/api/posts/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:+pid,platforms:pfs,tone:document.getElementById('content-tone').value,language:document.getElementById('content-lang').value})});const cs=await r.json();document.getElementById('content-results').innerHTML=cs.map(c=>`<div class="card" style="margin-top:16px"><div class="card-header"><span class="badge badge-${c.platform}">${c.platform.toUpperCase()}</span><button class="btn btn-sm btn-primary" onclick="pubContent(${c.product_id},${c.id},'${c.platform}')">📤 Đăng ngay</button></div><div class="content-preview"><h4>${esc(c.title||'')}</h4><p>${esc(c.body||'').replace(/\n/g,'<br>')}</p>${c.hashtags?.length?`<div class="hashtags">${c.hashtags.map(h=>`<span>#${esc(h)}</span>`).join('')}</div>`:''}${c.cta?`<p style="margin-top:8px;color:var(--orange);font-weight:600">${esc(c.cta)}</p>`:''}</div></div>`).join('');toast(`Đã tạo ${cs.length} nội dung!`,'success')}catch(e){toast('Lỗi: '+e.message,'error')}btn.innerHTML='🤖 AI Tạo Nội Dung';btn.disabled=false}
+function quickGen(pid){document.querySelector('[data-page="content"]').click();setTimeout(()=>{document.getElementById('content-product-select').value=pid},300)}
+async function pubContent(pid,cid,pf){try{const r=await fetch(API+'/api/posts/publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:pid,content_id:cid,platform:pf})});const d=await r.json();toast(d.status==='published'?`Đã đăng lên ${pf}!`:`${pf}: ${d.error_message||d.status}`,d.status==='published'?'success':'error')}catch(e){toast('Lỗi: '+e.message,'error')}}
+async function loadPosts(pf){try{let u=API+'/api/posts/';if(pf)u+='?platform='+pf;const r=await fetch(u);const ps=await r.json();const tb=document.getElementById('posts-table');if(!ps.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text2)">Chưa có bài đăng</td></tr>';return}tb.innerHTML=ps.map(p=>`<tr><td>#${p.id}</td><td><span class="badge badge-${p.platform}">${p.platform}</span></td><td><span class="badge badge-${p.status}">${p.status}</span></td><td>${fmtTime(p.published_at||p.scheduled_at||p.created_at)}</td><td>${p.platform_url?`<a href="${p.platform_url}" target="_blank" style="color:var(--accent2)">Xem</a>`:'-'}</td></tr>`).join('')}catch(e){}}
+function filterPosts(v){loadPosts(v)}
+async function loadSchedules(){try{const r=await fetch(API+'/api/schedules/');const ss=await r.json();const d=document.getElementById('schedules-list');if(!ss.length){d.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">Chưa có lịch nào</p>';return}d.innerHTML=ss.map(s=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--border)"><div><strong>${esc(s.name)}</strong><div style="font-size:12px;color:var(--text2);margin-top:2px">${s.posts_per_day} bài/ngày · ${s.start_hour}h-${s.end_hour}h · ${s.platforms.join(', ')}</div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge ${s.is_active?'badge-published':'badge-draft'}">${s.is_active?'Đang chạy':'Tắt'}</span><button class="btn btn-sm btn-secondary" onclick="togSched(${s.id})">${s.is_active?'⏸':'▶'}</button><button class="btn btn-sm btn-danger" onclick="delSched(${s.id})">🗑</button></div></div>`).join('')}catch(e){}}
+async function createSchedule(){const n=document.getElementById('sched-name').value.trim();if(!n){toast('Nhập tên lịch!','error');return}const pfs=[...document.querySelectorAll('#sched-platforms input:checked')].map(c=>c.value);try{await fetch(API+'/api/schedules/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,platforms:pfs,posts_per_day:+document.getElementById('sched-count').value,start_hour:+document.getElementById('sched-start').value,end_hour:+document.getElementById('sched-end').value})});toast('Đã tạo lịch!','success');loadSchedules()}catch(e){toast('Lỗi','error')}}
+async function previewTimes(){const c=document.getElementById('sched-count').value,s=document.getElementById('sched-start').value,e=document.getElementById('sched-end').value;try{const r=await fetch(API+`/api/schedules/preview-times?posts_per_day=${c}&start_hour=${s}&end_hour=${e}`);const d=await r.json();document.getElementById('preview-times').innerHTML='<div style="margin-top:8px;font-size:12px;color:var(--text2)">Giờ đăng: '+d.times.map(t=>`<span class="badge badge-scheduled" style="margin:2px">${t}</span>`).join(' ')+'</div>'}catch(e){}}
+async function togSched(id){await fetch(API+`/api/schedules/${id}/toggle`,{method:'PUT'});loadSchedules()}
+async function delSched(id){if(!confirm('Xóa lịch?'))return;await fetch(API+`/api/schedules/${id}`,{method:'DELETE'});toast('Đã xóa','success');loadSchedules()}
+async function loadComments(){try{const r=await fetch(API+'/api/comments/');const cs=await r.json();const tb=document.getElementById('comments-table');if(!cs.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text2)">Chưa có bình luận</td></tr>';return}tb.innerHTML=cs.map(c=>`<tr><td>${esc(c.author_name||'Ẩn danh')}</td><td>${esc((c.content||'').slice(0,80))}</td><td style="font-size:12px">${c.ai_reply?esc(c.ai_reply.slice(0,60))+'...':'<span style="color:var(--text2)">-</span>'}</td><td><span class="badge badge-${c.reply_status}">${c.reply_status}</span></td><td><button class="btn btn-sm btn-primary" onclick="aiReply(${c.id})">🤖</button></td></tr>`).join('')}catch(e){}}
+async function aiReply(id){try{const r=await fetch(API+`/api/comments/auto-reply/${id}`,{method:'POST'});const d=await r.json();toast('AI đã trả lời!','success');loadComments()}catch(e){toast('Lỗi','error')}}
+async function autoReplyAll(){try{const r=await fetch(API+'/api/comments/auto-reply-all',{method:'POST'});const d=await r.json();toast(`Xử lý ${d.processed} bình luận`,'success');loadComments()}catch(e){toast('Lỗi','error')}}
+function showModal(id){document.getElementById('modal-'+id).classList.remove('hidden')}
+function closeModals(){document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.add('hidden'))}
+function toast(msg,type='success'){const t=document.createElement('div');t.className='toast '+type;t.textContent=(type==='success'?'✅ ':'❌ ')+msg;document.getElementById('toast-container').appendChild(t);setTimeout(()=>t.remove(),4000)}
+function esc(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
+loadDashboard();
+</script>
+</body>
+</html>
